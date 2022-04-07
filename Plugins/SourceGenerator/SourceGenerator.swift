@@ -20,6 +20,7 @@ struct SourceGenerator: BuildToolPlugin {
 
     let input = context.package.directory.appending("input.csv")
     let lines = fileToArray(at: input.string)
+    print("lines: \(lines)")
     let d = linesToDict(lines: lines)
 
     var outputStr: String = ""
@@ -79,7 +80,7 @@ struct SourceGenerator: BuildToolPlugin {
     let parts = inputString.components(separatedBy: CharacterSet(charactersIn: "\n"))
     let trimmed = parts.compactMap({ $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) })
 
-    return trimmed
+    return trimmed.filter({ !$0.isEmpty })
   }
 
   func linesToDict(lines: [String]) -> Container {
@@ -144,7 +145,7 @@ struct SourceGenerator: BuildToolPlugin {
   func writeFileRecurive(container: Container, str: inout String, space: Int) {
 
     let spaces = String(repeating: " ", count: space)
-    str += "\(spaces)public struct \(container.name) {\n"
+    str += "\(spaces)public struct \(container.name.replacingOccurrences(of: " ", with: "").camelCase()) {\n"
 
     for item in container.children {
       print("Child: \(item.key)")
