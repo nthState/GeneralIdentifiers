@@ -120,6 +120,10 @@ struct SourceGenerator: BuildToolPlugin {
   func addPart(parts: [String], parent: Container) {
 
     //print("Add parts: \(parts)")
+    if parts.count == 1 {
+      parent.value = parts.last
+      print("jas last: \(parts)")
+    }
     
     guard parts.count >= 1 else {
       return
@@ -144,31 +148,44 @@ struct SourceGenerator: BuildToolPlugin {
 
   func writeFileRecurive(container: Container, str: inout String, space: Int) {
 
-    let spaces = String(repeating: " ", count: space)
-    str += "\(spaces)public struct \(container.name.replacingOccurrences(of: " ", with: "").camelCase()) {\n"
+    let name = container.name.replacingOccurrences(of: " ", with: "")
 
-    for item in container.children {
-      print("Child: \(item.key)")
-      writeFileRecurive(container: item.value, str: &str, space: space + 2)
+    let spaces = String(repeating: " ", count: space)
+
+
+    if let v = container.value {
+      str += "\n"
+      str += "\(spaces)let \(name) = \"\(v)\""
+      str += "\n"
+    } else {
+
+      str += "\(spaces)public struct \(name.camelCase()) {\n"
+      for item in container.children {
+        print("Child: \(item.key) Value: \(item.value.value)")
+        writeFileRecurive(container: item.value, str: &str, space: space + 2)
+      }
+      str += "\(spaces)}\n"
+
     }
 
-    str += "\(spaces)}\n"
   }
 
 }
 
 class Container {
   let name: String
+  var value: String?
   var children: [String: Container]
 
   init(name: String, children: [String: Container]) {
     self.name = name
     self.children = children
+    self.value = nil
   }
 }
 
 extension Container: CustomStringConvertible {
   var description: String {
-    "Name: \(name), Child Count: \(children.count) \(children)"
+    "Name: \(name), Value: \(value), Child Count: \(children.count) \(children)"
   }
 }
