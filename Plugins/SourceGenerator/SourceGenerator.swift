@@ -155,7 +155,7 @@ struct SourceGenerator: BuildToolPlugin {
 
     if let v = container.value {
       str += "\n"
-      str += "\(spaces)let \(name) = \"\(v)\""
+      str += "\(spaces)public let \(name) = \"\(v)\""
       str += "\n"
     } else {
 
