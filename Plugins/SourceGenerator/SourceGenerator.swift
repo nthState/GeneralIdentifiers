@@ -80,7 +80,7 @@ struct SourceGenerator: BuildToolPlugin {
     let parts = inputString.components(separatedBy: CharacterSet(charactersIn: "\n"))
     let trimmed = parts.compactMap({ $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) })
 
-    return trimmed.filter({ !$0.isEmpty })
+      return trimmed.filter({ !$0.isEmpty }).filter({ !$0.starts(with: "#") })
   }
 
   func linesToDict(lines: [String]) -> Container {
@@ -157,7 +157,8 @@ struct SourceGenerator: BuildToolPlugin {
       str += "\n"
       str += "\(spaces)public let \(name) = \"\(v)\""
       str += "\n"
-    } else {
+    }
+      else {
 
       str += "\(spaces)public struct \(name.camelCase()) {\n"
       for item in container.children {
