@@ -26,7 +26,7 @@ public extension GeneralIdentifiers {
 and you can reference like:
 
 ```
-let data = GeneralIdentifiers.playButton.play
+let data = GeneralIdentifiers.Home.playButton
 ```
 
 ## Support
