@@ -1,0 +1,19 @@
+{
+  "GeneralIdentifiers": {
+
+    "Home": {
+      "playButton": {
+        "value": "Play"
+      },
+      "pauseButton": {
+        "value": "Pause"
+      }
+    },
+    "Profile": {
+      "general": {
+        "value": "General"
+      }
+    }
+
+  }
+}

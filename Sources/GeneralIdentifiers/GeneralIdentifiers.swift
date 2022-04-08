@@ -1,6 +1,6 @@
-public struct GeneralAccessibility {
-    public private(set) var text = "Hello, World!"
+public struct GeneralIdentifiers {
+  public private(set) var text = "Hello, World!"
 
-    public init() {
-    }
+  public init() {
+  }
 }

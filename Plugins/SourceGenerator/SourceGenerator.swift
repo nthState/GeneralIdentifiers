@@ -18,7 +18,7 @@ struct SourceGenerator: BuildToolPlugin {
     //.appending(subpath: "Resources")
     //    print("resourcesDirectoryPath file: \(resourcesDirectoryPath)")
 
-    let input = context.package.directory.appending("input.csv")
+    let input = context.package.directory.appending("GeneralIdentifiers.csv")
     let lines = fileToArray(at: input.string)
     print("lines: \(lines)")
     let d = linesToDict(lines: lines)

@@ -4,13 +4,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "GeneralAccessibility",
+    name: "GeneralIdentifiers",
     platforms: [.iOS(.v15), .macOS(.v10_15)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "GeneralAccessibility",
-            targets: ["GeneralAccessibility"]),
+            name: "GeneralIdentifiers",
+            targets: ["GeneralIdentifiers"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -23,13 +23,13 @@ let package = Package(
           dependencies: []
         ),
         .target(
-            name: "GeneralAccessibility",
+            name: "GeneralIdentifiers",
             dependencies: [],
             plugins: [
               .plugin(name: "SourceGenerator")
             ]),
         .testTarget(
-            name: "GeneralAccessibilityTests",
-            dependencies: ["GeneralAccessibility"]),
+            name: "GeneralIdentifiersTests",
+            dependencies: ["GeneralIdentifiers"]),
     ]
 )
