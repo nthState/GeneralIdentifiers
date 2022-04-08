@@ -9,10 +9,24 @@ Home,playButton,Play
 Home,pauseButton,Pause
 ```
 
-It will generate a nested struct that you can reference like:
+It will generate a nested struct
 
 ```
-let data = GeneralIdentifiers.playButton.play()
+public extension GeneralIdentifiers {
+  public struct Home {
+
+    public let pauseButton = "Pause"
+
+    public let playButton = "Play"
+  }
+}
+
+```
+
+and you can reference like:
+
+```
+let data = GeneralIdentifiers.playButton.play
 ```
 
 ## Support
