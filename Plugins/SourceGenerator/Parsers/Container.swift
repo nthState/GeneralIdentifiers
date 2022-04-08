@@ -11,11 +11,13 @@ class Container {
   let name: String
   var value: String?
   var children: [String: Container]
+  let root: Bool
 
-  init(name: String, children: [String: Container]) {
+  init(name: String, children: [String: Container], root: Bool = false) {
     self.name = name
     self.children = children
     self.value = nil
+    self.root = root
   }
 }
 

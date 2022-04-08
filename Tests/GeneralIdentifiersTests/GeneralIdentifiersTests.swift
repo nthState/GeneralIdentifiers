@@ -2,10 +2,14 @@ import XCTest
 @testable import GeneralIdentifiers
 
 final class GeneralIdentifiersTests: XCTestCase {
-  func testExample() throws {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct
-    // results.
-    XCTAssertEqual(GeneralIdentifiers().text, "Hello, World!")
+
+  /**
+   This struct only exists after compilation, it doesn't exist as a physical file in the Source folder
+   */
+  func test__dynamically_generated_structure_exists() throws {
+
+    let data = GeneralIdentifiers.Profile()
+
+    XCTAssertNotNil(data)
   }
 }

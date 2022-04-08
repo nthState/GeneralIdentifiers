@@ -56,7 +56,7 @@ struct SourceGenerator: BuildToolPlugin {
       Diagnostics.error(error.localizedDescription)
     }
 
-    let outputFile = outputFolder.appending("General.swift")
+    let outputFile = outputFolder.appending("GeneralIdentifiers+.swift")
 
     // Write output to disk
     let written = FileManager.default.createFile(atPath: outputFile.string, contents: outputData)

@@ -48,7 +48,7 @@ extension CSVParser {
 
   private func linesToDict(lines: [String]) -> Container {
 
-    var container = Container(name: "General", children: [: ])
+    var container = Container(name: "GeneralIdentifiers", children: [: ], root: true)
 
     for line in lines {
 
@@ -79,7 +79,7 @@ extension CSVParser {
     //print("Add parts: \(parts)")
     if parts.count == 1 {
       parent.value = parts.last
-      print("jas last: \(parts)")
+      print("has last: \(parts)")
     }
 
     guard parts.count >= 1 else {
@@ -124,7 +124,12 @@ extension CSVParser {
         formattedName = name.snake_case()
       }
 
-      str += "\(spaces)public struct \(formattedName) {\n"
+      if container.root {
+        str += "\(spaces)public extension GeneralIdentifiers {\n"
+      } else {
+        str += "\(spaces)public struct \(formattedName) {\n"
+      }
+
       for item in container.children {
         //print("Child: \(item.key) Value: \(item.value.value)")
         writeFileRecurive(container: item.value, str: &str, space: space + 2)
