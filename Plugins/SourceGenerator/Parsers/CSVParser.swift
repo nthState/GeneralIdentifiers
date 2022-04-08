@@ -122,6 +122,8 @@ extension CSVParser {
         formattedName = name.camelCase()
       case .snakeCase:
         formattedName = name.snake_case()
+      case .none:
+        formattedName = name
       }
 
       if container.root {

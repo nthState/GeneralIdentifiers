@@ -8,6 +8,7 @@
 import Foundation
 
 public enum Casing: String, Decodable {
+  case none = ""
   case camelCase
   case snakeCase
 }
