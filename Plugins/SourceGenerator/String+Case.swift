@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Casing: String {
+public enum Casing: String, Decodable {
   case camelCase
   case snakeCase
 }

@@ -6,54 +6,66 @@ import Foundation
  */
 @main
 struct SourceGenerator: BuildToolPlugin {
-  /// This plugin's implementation returns a single `prebuild` command to run `swiftgen`.
+
   func createBuildCommands(context: PluginContext, target: Target) throws -> [Command] {
-    //    guard let target = target as? SourceModuleTarget else {
-    //      print("Not target")
-    //      return []
-    //    }
-    //
-    //    let resourcesDirectoryPath = context.pluginWorkDirectory
-    //      .appending(subpath: target.name)
-    //.appending(subpath: "Resources")
-    //    print("resourcesDirectoryPath file: \(resourcesDirectoryPath)")
 
-    let input = context.package.directory.appending("GeneralIdentifiers.csv")
-    let lines = fileToArray(at: input.string)
-    print("lines: \(lines)")
-    let d = linesToDict(lines: lines)
-
-    var outputStr: String = ""
-    writeFileRecurive(container: d, str: &outputStr, space: 0)
-
-
-
-    let outputPath = context.pluginWorkDirectory.appending("GeneratedSources")
-
-    do {
-      try FileManager.default.createDirectory(at: URL(fileURLWithPath: outputPath.string), withIntermediateDirectories: true, attributes: nil)
-    } catch let error {
-      print(error)
+    // Load the configuration file
+    let configurationPath = context.package.directory.appending("SourceGeneratorConfiguration.json")
+    guard let configurationData = try? Data(contentsOf: configurationPath.url) else {
+      fatalError("Configuration file not found")
     }
 
-    //let sourceFolder = context.package.directory//.appending(["Sources", "GeneralAccessibility"])
+    // Decode configuration
+    let configuration: SourceGeneratorConfiguration
+    do {
+      configuration = try JSONDecoder().decode(SourceGeneratorConfiguration.self, from: configurationData)
+    } catch let error {
+      print(error)
+      fatalError(error.localizedDescription)
+    }
 
-    //    print("SourceGenerator running")
-    print("Input file: \(input)")
-    //    print("pluginDirectory: \(pluginDirectory)")
-    //    print("packageDirectory: \(context.package.directory)")
+    Diagnostics.remark("configuration: \(configuration)")
 
-    let src = outputPath.appending("General.swift")
-    //print("write: \(file)")
+    // What data file are we going to use?
+    let input = context.package.directory.appending(configuration.sourceName)
 
-    // let out = resourcesDirectoryPath.appending("foo.swift")
+    // Pick a decoder
+    let parser: Parseable
+    switch configuration.sourceName {
+    case _ where configuration.sourceName.hasSuffix(".csv"):
+      parser = CSVParser(source: input, configuration: configuration)
+      Diagnostics.remark("CSV Type")
+    case _ where configuration.sourceName.hasSuffix(".json"):
+      parser = JSONParser(source: input, configuration: configuration)
+      Diagnostics.remark("JSON Type")
+    default:
+      fatalError("Unable to recognise source type")
+    }
 
-    let data = outputStr.data(using: .utf8)
+    // Generate output
+    let outputData = parser.generate()
+    Diagnostics.remark("Output generated, \(String(describing: outputData?.count)) bytes")
 
-    writeFile(to: src.string, with: data)
+    // Create output file
+    let outputFolder = context.pluginWorkDirectory.appending("GeneratedSources")
 
+    // Ensure output folder available
+    do {
+      try FileManager.default.createDirectory(at: URL(fileURLWithPath: outputFolder.string), withIntermediateDirectories: true, attributes: nil)
+    } catch let error {
+      Diagnostics.error(error.localizedDescription)
+    }
 
-    print("src: \(src)")
+    let outputFile = outputFolder.appending("General.swift")
+
+    // Write output to disk
+    let written = FileManager.default.createFile(atPath: outputFile.string, contents: outputData)
+    if !written {
+      Diagnostics.error("Failed to write: \(outputFile)")
+    } else {
+      Diagnostics.remark("Output file written: \(outputFile)")
+    }
+
 
     // Passes the outputFilesDirectory to the next build stage
     return [.prebuildCommand(displayName: "Test",
@@ -62,131 +74,8 @@ struct SourceGenerator: BuildToolPlugin {
                               //                                                            src.string,
                               //                                                            outputPath.string
                              ],
-                             outputFilesDirectory: outputPath)]
-  }
-
-  func writeFile(to: String, with data: Data?) {
-
-    let written = FileManager.default.createFile(atPath: to, contents: data)
-    //print("written: \(written)")
-  }
-
-  func fileToArray(at: String) -> [String] {
-
-    guard let inputString = try? String(contentsOfFile: at) else {
-      return []
-    }
-
-    let parts = inputString.components(separatedBy: CharacterSet(charactersIn: "\n"))
-    let trimmed = parts.compactMap({ $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) })
-
-      return trimmed.filter({ !$0.isEmpty }).filter({ !$0.starts(with: "#") })
-  }
-
-  func linesToDict(lines: [String]) -> Container {
-
-    var container = Container(name: "General", children: [: ])
-
-    for line in lines {
-
-      let parts = line.components(separatedBy: CharacterSet(charactersIn: ","))
-
-      let key = parts[0]
-      //print("key: \(key)")
-
-      let c: Container
-      if container.children[key] != nil {
-        //print("parent gound: \(key)")
-        c = container.children[key]!
-        addPart(parts: Array(parts[1...]), parent: c)
-      } else {
-        c = Container(name: key, children: [: ])
-        addPart(parts: Array(parts[1...]), parent: c)
-        container.children[key] = c
-      }
-
-
-
-      //print("c: \(c)")
-
-
-    }
-
-    //print("Container: \(container)")
-
-    return container
-  }
-
-  func addPart(parts: [String], parent: Container) {
-
-    //print("Add parts: \(parts)")
-    if parts.count == 1 {
-      parent.value = parts.last
-      print("jas last: \(parts)")
-    }
-    
-    guard parts.count >= 1 else {
-      return
-    }
-
-    let key = parts[0]
-    //print("subbbb: \(key)")
-
-    let c: Container
-    if parent.children[key] != nil {
-      //print("sub: \(key)")
-      c = parent.children[key]!
-    } else {
-      c = Container(name: key, children: [: ])
-      parent.children[key] = c
-    }
-
-    //
-
-    addPart(parts: Array(parts[1...]), parent: c)
-  }
-
-  func writeFileRecurive(container: Container, str: inout String, space: Int) {
-
-    let name = container.name.replacingOccurrences(of: " ", with: "")
-
-    let spaces = String(repeating: " ", count: space)
-
-
-    if let v = container.value {
-      str += "\n"
-      str += "\(spaces)public let \(name) = \"\(v)\""
-      str += "\n"
-    }
-      else {
-
-      str += "\(spaces)public struct \(name.camelCase()) {\n"
-      for item in container.children {
-        print("Child: \(item.key) Value: \(item.value.value)")
-        writeFileRecurive(container: item.value, str: &str, space: space + 2)
-      }
-      str += "\(spaces)}\n"
-
-    }
-
+                             outputFilesDirectory: outputFolder)]
   }
 
 }
 
-class Container {
-  let name: String
-  var value: String?
-  var children: [String: Container]
-
-  init(name: String, children: [String: Container]) {
-    self.name = name
-    self.children = children
-    self.value = nil
-  }
-}
-
-extension Container: CustomStringConvertible {
-  var description: String {
-    "Name: \(name), Value: \(value), Child Count: \(children.count) \(children)"
-  }
-}
