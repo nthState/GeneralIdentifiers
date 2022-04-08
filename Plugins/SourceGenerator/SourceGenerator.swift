@@ -1,9 +1,6 @@
 import PackagePlugin
 import Foundation
 
-/**
- https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md
- */
 @main
 struct SourceGenerator: BuildToolPlugin {
 
