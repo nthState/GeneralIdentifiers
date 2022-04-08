@@ -40,7 +40,7 @@ let data = GeneralIdentifiers.Home.playButton
 
 ## Configuration
 
-Update the `SourceGeneratorConfiguration.json` to specify output preferences:
+Update the `SourceGeneratorConfiguration.json` to specify preferences:
 
 ```
 {
@@ -55,8 +55,23 @@ It uses `BuildToolPlugin` to run as a pre-build step which:
 
 - Scans the source file
 - Generates an extension to `GeneralIdentifiers`
-- Passes this file to the `build` step of the Swift Package
+- Passes this file to the `build` step of the Swift Package via the `.prebuildCommand`'s `outputFilesDirectory`
 
 The outcome is a nested struct type.
 
 For more inforamation about `BuildToolPlugin` take a look here:  https://github.com/apple/swift-evolution/blob/main/proposals/0303-swiftpm-extensible-build-tools.md
+
+## Build logging
+
+We use `Diagnostics` to write to the build log, so if you're looking for info on the build,
+check the logs.
+
+## Trouble Shooting
+
+### The package doesn't seem to be built
+
+Do the following:
+
+- Go to Xcode File
+- Go to Packages
+- Click "Resolve Package Versions"
